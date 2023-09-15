@@ -13,7 +13,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.ktx.Firebase;
 
 import java.io.File;
@@ -26,33 +29,39 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 Button error , error1 , error2;
 EditText edit;
+    private DatabaseReference errorsReference;
 
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if (!(Thread.getDefaultUncaughtExceptionHandler() instanceof CrashReporterExceptionHandler)) {
+            Thread.setDefaultUncaughtExceptionHandler(new CrashReporterExceptionHandler());
+        }
         error= findViewById(R.id.buttonCrash);
         error1= findViewById(R.id.buttonCrash1);
         error2= findViewById(R.id.buttonCrash2);
         edit= findViewById(R.id.edit);
+        FirebaseApp.initializeApp(this);
+        errorsReference = FirebaseDatabase.getInstance().getReference("errors");
+        errorsReference.setValue(null);
+        //FirebaseCrashlytics.getInstance().log(" crash message for firebase ..");
 
-      //  Log.d("logging..", "onCreate: ");
-        FirebaseCrashlytics.getInstance().log(" crash message for firebase ..");
 
         error.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseCrashlytics.getInstance().log(" crash message for firebase .. error");
                 String text= null;
                 edit.setText(text.toString());
+
             }
+
         });
-      //  FirebaseCrashlytics.getInstance().log(" crash message for firebase .. error 1 entering ");
         error1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseCrashlytics.getInstance().log(" crash message for firebase ..error1 ");
+
                 String filepath= "sdcard/made-up/filepath/";
                 try {
                     File file= new File(filepath);
@@ -66,14 +75,13 @@ EditText edit;
                 catch (IOException e)
                 {
                     FirebaseCrashlytics.getInstance().recordException(new Exception(e.toString()));
-                }
+                 }
             }
         });
-     //   FirebaseCrashlytics.getInstance().log(" crash message for firebase .. error 2 entering ");
         error2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseCrashlytics.getInstance().log(" crash message for firebase .. error 2");
+
                 ArrayList <String> list= new ArrayList<>();
                 list.add("string 1");
                 list.add("string 2");
@@ -84,6 +92,7 @@ EditText edit;
                 }
             }
         });
-    }
+   }
+
 }
 
